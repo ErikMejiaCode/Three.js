@@ -22,9 +22,62 @@ scene.add(mesh)
  * Sizes
  */
 const sizes = {
-    width: 800,
-    height: 600
+    width: window.innerWidth,
+    height: window.innerHeight
 }
+/**
+ * Dealing with the window resizing
+ */
+window.addEventListener('resize', () => {
+    //Update sizes of the window as they are resized
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+    //Update camera - Aspect Ratio
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
+
+    // Update renderer
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
+
+/**
+ * Adding event listener for double click for Fullscreen
+ */
+window.addEventListener('dblclick', () => {
+    //Prefix version 
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement
+
+    if(!fullscreenElement){
+        if(canvas.requestFullscreen)
+        {
+            canvas.requestFullscreen()
+        }
+        else if(canvas.webkitRequestFullscreen)
+        {
+            canvas.webkitRequestFullscreen()
+        }
+    } 
+    else {
+        if(document.exitFullscreen)
+        {
+            document.exitFullscreen()
+        }
+        else (document.webkitExitFullscreen)
+        {
+            document.webkitExitFullscreen()
+        }
+    }
+
+    // Reg version for all browsers except Safari, above is used due to Safari browser
+
+    // if(!document.fullscreenElement){
+    //     canvas.requestFullscreen()
+    // } else {
+    //     document.exitFullscreen()
+    // }
+})
 
 /**
  * Camera
@@ -45,6 +98,7 @@ const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 /**
  * Animate
