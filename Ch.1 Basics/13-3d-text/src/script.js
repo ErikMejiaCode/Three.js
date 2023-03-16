@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'lil-gui'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
 
 /**
  * Base
@@ -14,10 +16,84 @@ const canvas = document.querySelector('canvas.webgl')
 // Scene
 const scene = new THREE.Scene()
 
+// Adding axis helper to find the center of scene
+const axesHelper = new THREE.AxesHelper()
+// scene.add(axesHelper)
+
 /**
  * Textures
  */
 const textureLoader = new THREE.TextureLoader()
+const matcapTexture = textureLoader.load('/textures/matcaps/8.png')
+
+/**
+ * Fonts
+ */
+const fontLoader = new FontLoader()
+fontLoader.load(
+    'fonts/helvetiker_regular.typeface.json',
+    (font) => {
+        const textGeometry = new TextGeometry(
+            "Hello Three.js",
+            {
+                font: font,
+                size: 0.5,
+                height: 0.2,
+                curveSegments: 5,
+                bevelEnabled: true,
+                bevelThickness: 0.03,
+                bevelSize: 0.02,
+                bevelOffset: 0,
+                bevelSegments: 4
+            }
+        )
+        //One way of centering the text 
+        // textGeometry.computeBoundingBox()
+        // textGeometry.translate(
+        //     - (textGeometry.boundingBox.max.x - 0.02) * 0.5,
+        //     - (textGeometry.boundingBox.max.y - 0.02) * 0.5,
+        //     - (textGeometry.boundingBox.max.z - 0.03) * 0.5
+        // )
+
+        // Faster way (easier way) of centering text
+        textGeometry.center()
+
+        const material = new THREE.MeshMatcapMaterial( { matcap: matcapTexture } )
+        const text = new THREE.Mesh(textGeometry, material)
+        scene.add(text)
+
+        console.time('donuts')
+
+        //Move these from inside the loop for optimized performace
+        const donutGeometry = new THREE.TorusGeometry(0.3, 0.2, 20, 45)
+        // const donutMaterial = new THREE.MeshMatcapMaterial({ matcap: matcapTexture })
+        
+        // Adding 99 donuts to the scene
+        for(let i = 0; i < 250; i++){
+            const donut = new THREE.Mesh(donutGeometry, material)
+
+            //Moving the donuts to random locations 
+            donut.position.x = (Math.random() - 0.5) * 10
+            donut.position.y = (Math.random() - 0.5) * 10
+            donut.position.z = (Math.random() - 0.5) * 10
+
+            //Changing rotation of donuts 
+            donut.rotation.x = Math.random() * Math.PI
+            donut.rotation.y = Math.random() * Math.PI
+
+            //Scaling the donut to different size 
+            const scale = Math.random()
+            donut.scale.set(scale, scale, scale)
+            // donut.scale.x = scale
+            // donut.scale.y = scale
+            // donut.scale.z = scale
+
+            scene.add(donut)
+        }
+
+        console.timeEnd('donuts')
+    }
+)
 
 /**
  * Object
@@ -27,7 +103,7 @@ const cube = new THREE.Mesh(
     new THREE.MeshBasicMaterial()
 )
 
-scene.add(cube)
+// scene.add(cube)
 
 /**
  * Sizes
