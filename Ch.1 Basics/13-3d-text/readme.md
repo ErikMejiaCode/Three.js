@@ -16,7 +16,7 @@ npm run build
 ```
 
 
-Successful deployment using Vercel. Link: 3d-text-threejs-dun.vercel.app
+Successful deployment using Vercel. [Link] (3d-text-threejs-dun.vercel.app)
 
 
 
