@@ -34,7 +34,7 @@ fontLoader.load(
     'fonts/helvetiker_regular.typeface.json',
     (font) => {
         const textGeometry = new TextGeometry(
-            "Hello Three.js",
+            "Currently Learning..\n       Three.js :)",
             {
                 font: font,
                 size: 0.5,
@@ -69,7 +69,7 @@ fontLoader.load(
         // const donutMaterial = new THREE.MeshMatcapMaterial({ matcap: matcapTexture })
         
         // Adding 99 donuts to the scene
-        for(let i = 0; i < 250; i++){
+        for(let i = 0; i < 225; i++){
             const donut = new THREE.Mesh(donutGeometry, material)
 
             //Moving the donuts to random locations 
@@ -135,7 +135,7 @@ window.addEventListener('resize', () =>
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.x = 1
 camera.position.y = 1
-camera.position.z = 2
+camera.position.z = 3
 scene.add(camera)
 
 // Controls
