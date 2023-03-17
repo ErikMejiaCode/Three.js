@@ -14,7 +14,13 @@ const gui = new dat.GUI()
 const canvas = document.querySelector('canvas.webgl')
 
 // Scene
+
+const params = {
+    color: '#1d0f2e'
+}
+
 const scene = new THREE.Scene()
+scene.background = new THREE.Color( params.color )
 
 // Adding axis helper to find the center of scene
 const axesHelper = new THREE.AxesHelper()
@@ -25,6 +31,9 @@ const axesHelper = new THREE.AxesHelper()
  */
 const textureLoader = new THREE.TextureLoader()
 const matcapTexture = textureLoader.load('/textures/matcaps/8.png')
+const matcapTexture2 = textureLoader.load('/textures/matcaps/3.png')
+
+let donutsArray = []
 
 /**
  * Fonts
@@ -59,6 +68,7 @@ fontLoader.load(
         textGeometry.center()
 
         const material = new THREE.MeshMatcapMaterial( { matcap: matcapTexture } )
+        const material2 = new THREE.MeshMatcapMaterial( { matcap: matcapTexture2 } )
         const text = new THREE.Mesh(textGeometry, material)
         scene.add(text)
 
@@ -69,8 +79,8 @@ fontLoader.load(
         // const donutMaterial = new THREE.MeshMatcapMaterial({ matcap: matcapTexture })
         
         // Adding 99 donuts to the scene
-        for(let i = 0; i < 225; i++){
-            const donut = new THREE.Mesh(donutGeometry, material)
+        for(let i = 0; i < 150; i++){
+            const donut = new THREE.Mesh(donutGeometry, material2)
 
             //Moving the donuts to random locations 
             donut.position.x = (Math.random() - 0.5) * 10
@@ -87,6 +97,7 @@ fontLoader.load(
             // donut.scale.x = scale
             // donut.scale.y = scale
             // donut.scale.z = scale
+            donutsArray.push(donut)
 
             scene.add(donut)
         }
@@ -95,6 +106,8 @@ fontLoader.load(
     }
 )
 
+console.log(donutsArray)
+
 /**
  * Object
  */
@@ -102,7 +115,6 @@ const cube = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshBasicMaterial()
 )
-
 // scene.add(cube)
 
 /**
@@ -162,6 +174,11 @@ const tick = () =>
 
     // Update controls
     controls.update()
+
+    // Rotating Donuts
+    for(let i = 0; i < donutsArray.length; i++){
+        donutsArray[i].rotation.x += 0.01
+    }
 
     // Render
     renderer.render(scene, camera)
