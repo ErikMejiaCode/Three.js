@@ -15,7 +15,7 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 // Adding the fog
-const fog = new THREE.Fog("#262837", 1, 15);
+const fog = new THREE.Fog("#262837", 1, 12);
 scene.fog = fog;
 
 /**
@@ -43,6 +43,39 @@ const brickNormalTexture = textureLoader.load("/textures/bricks/normal.jpg");
 const brickRoughnessTexture = textureLoader.load(
   "/textures/bricks/roughness.jpg"
 );
+
+// Loading textures for Graves
+const gravesColorTexture = textureLoader.load(
+  "/textures/graves/rock_color.jpg"
+);
+const gravesAmbientOcclusionTexture = textureLoader.load(
+  "/textures/graves/rock_ambient.png"
+);
+
+// Loading textures for Grass
+const grassColorTexture = textureLoader.load("/textures/grass/color.jpg");
+const grassAmbientOcclusionTexture = textureLoader.load(
+  "/textures/grass/ambientOcclusion.jpg"
+);
+const grassNormalTexture = textureLoader.load("/textures/grass/normal.jpg");
+const grassRoughnessTexture = textureLoader.load(
+  "/textures/grass/roughness.jpg"
+);
+// Playing with repeat of the grass textures
+grassColorTexture.repeat.set(8, 8);
+grassAmbientOcclusionTexture.repeat.set(8, 8);
+grassNormalTexture.repeat.set(8, 8);
+grassRoughnessTexture.repeat.set(8, 8);
+//Telling texture to repeat by changing the wrapS and wrapT
+grassColorTexture.wrapS = THREE.RepeatWrapping;
+grassAmbientOcclusionTexture.wrapS = THREE.RepeatWrapping;
+grassNormalTexture.wrapS = THREE.RepeatWrapping;
+grassRoughnessTexture.wrapS = THREE.RepeatWrapping;
+
+grassColorTexture.wrapT = THREE.RepeatWrapping;
+grassAmbientOcclusionTexture.wrapT = THREE.RepeatWrapping;
+grassNormalTexture.wrapT = THREE.RepeatWrapping;
+grassRoughnessTexture.wrapT = THREE.RepeatWrapping;
 
 /**
  * House
@@ -128,7 +161,10 @@ const graves = new THREE.Group();
 scene.add(graves);
 
 const graveGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.2);
-const graveMaterial = new THREE.MeshStandardMaterial({ color: "#b2b6b1" });
+const graveMaterial = new THREE.MeshStandardMaterial({
+  map: gravesColorTexture,
+  aoMap: gravesAmbientOcclusionTexture,
+});
 
 for (let i = 0; i < 50; i++) {
   const angle = Math.random() * Math.PI * 2;
@@ -140,13 +176,23 @@ for (let i = 0; i < 50; i++) {
   grave.position.set(x, 0.35, z);
   grave.rotation.y = (Math.random() - 0.5) * 0.4;
   grave.rotation.z = (Math.random() - 0.5) * 0.4;
+  grave.castShadow = true;
   graves.add(grave);
 }
 
-// Floor
+// Floor - Updating textures to grass
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(20, 20),
-  new THREE.MeshStandardMaterial({ color: "#a9c388" })
+  new THREE.MeshStandardMaterial({
+    map: grassColorTexture,
+    aoMap: grassAmbientOcclusionTexture,
+    normalMap: grassNormalTexture,
+    roughnessMap: grassRoughnessTexture,
+  })
+);
+floor.geometry.setAttribute(
+  "uv2",
+  new THREE.Float32BufferAttribute(floor.geometry.attributes.uv.array, 2)
 );
 floor.rotation.x = -Math.PI * 0.5;
 floor.position.y = 0;
@@ -156,12 +202,12 @@ scene.add(floor);
  * Lights
  */
 // Ambient light
-const ambientLight = new THREE.AmbientLight("#b9d5ff", 0.12);
+const ambientLight = new THREE.AmbientLight("#b9d5ff", 0.5);
 gui.add(ambientLight, "intensity").min(0).max(1).step(0.001);
 scene.add(ambientLight);
 
 // Directional light
-const moonLight = new THREE.DirectionalLight("#b9d5ff", 0.12);
+const moonLight = new THREE.DirectionalLight("#b9d5ff", 0.3);
 moonLight.position.set(4, 5, -2);
 gui.add(moonLight, "intensity").min(0).max(1).step(0.001);
 gui.add(moonLight.position, "x").min(-5).max(5).step(0.001);
@@ -173,6 +219,16 @@ scene.add(moonLight);
 const doorLight = new THREE.PointLight("#ff7d46", 1, 7);
 doorLight.position.set(0, 2.2, 2.7);
 house.add(doorLight);
+
+// Creating the Ghosts with lights
+const ghost1 = new THREE.PointLight("#ff00ff", 3, 4);
+scene.add(ghost1);
+
+const ghost2 = new THREE.PointLight("#00ffff", 3, 4);
+scene.add(ghost2);
+
+const ghost3 = new THREE.PointLight("#ffff00", 3, 4);
+scene.add(ghost3);
 
 /**
  * Sizes
@@ -226,12 +282,74 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor("#262837");
 
 /**
+ * Shadows
+ */
+// Activating the Cast Shadows in the renderer & Lights
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+
+moonLight.castShadow = true;
+doorLight.castShadow = true;
+ghost1.castShadow = true;
+ghost2.castShadow = true;
+ghost3.castShadow = true;
+
+// Going through objects and enable cast shadows
+walls.castShadow = true;
+bush1.castShadow = true;
+bush2.castShadow = true;
+bush3.castShadow = true;
+bush4.castShadow = true;
+
+// Adding the receive shadows on the floor
+floor.receiveShadow = true;
+walls.receiveShadow = true;
+
+// Optimizing the shadows for performance
+doorLight.shadow.mapSize.width = 256;
+doorLight.shadow.mapSize.height = 256;
+doorLight.shadow.camera.far = 7;
+
+moonLight.shadow.mapSize.width = 256;
+moonLight.shadow.mapSize.height = 256;
+moonLight.shadow.camera.far = 15;
+
+ghost1.shadow.mapSize.width = 256;
+ghost1.shadow.mapSize.height = 256;
+ghost1.shadow.camera.far = 7;
+
+ghost2.shadow.mapSize.width = 256;
+ghost2.shadow.mapSize.height = 256;
+ghost2.shadow.camera.far = 7;
+
+ghost3.shadow.mapSize.width = 256;
+ghost3.shadow.mapSize.height = 256;
+ghost3.shadow.camera.far = 7;
+
+/**
  * Animate
  */
 const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
+
+  // Updating Ghosts to have them animated in scene
+  const ghostAngle = elapsedTime * 0.5;
+  ghost1.position.x = Math.cos(ghostAngle) * 4;
+  ghost1.position.z = Math.sin(ghostAngle) * 4;
+  ghost1.position.y = Math.sin(elapsedTime) * 3;
+
+  const ghostAngle2 = -elapsedTime * 0.3;
+  ghost2.position.x = Math.cos(ghostAngle2) * 5;
+  ghost2.position.z = Math.sin(ghostAngle2) * 5;
+  ghost2.position.y = Math.sin(elapsedTime * 4) + Math.sin(elapsedTime * 2.5);
+
+  const ghostAngle3 = -elapsedTime * 0.18;
+  ghost3.position.x =
+    Math.cos(ghostAngle3) * (7 + Math.sin(elapsedTime * 0.32));
+  ghost3.position.z = Math.sin(ghostAngle3) * (7 + Math.sin(elapsedTime * 0.5));
+  ghost3.position.y = Math.sin(elapsedTime * 5) + Math.sin(elapsedTime * 2);
 
   // Update controls
   controls.update();
