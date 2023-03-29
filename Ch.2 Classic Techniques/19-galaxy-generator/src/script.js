@@ -123,25 +123,6 @@ const generateGalaxy = () => {
 
 generateGalaxy();
 
-/**
- * Animating galaxy
- */
-
-// Define a function to update the rotation of the galaxy
-const update = () => {
-  // Increment the angle by a small value
-  parameters.angle += 0.001;
-
-  // Set the rotation of the points object to the new angle
-  points.rotation.y = parameters.angle;
-
-  // Call the update function again on the next frame
-  requestAnimationFrame(update);
-};
-
-// Call the update function to start the animation
-update();
-
 // Adding debug tweaks
 gui
   .add(parameters, "count")
@@ -251,6 +232,12 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
+
+  // Animating Galaxy
+  parameters.angle += 0.001;
+
+  // Set the rotation of the points object to the new angle
+  points.rotation.y = parameters.angle;
 
   // Update controls
   controls.update();
