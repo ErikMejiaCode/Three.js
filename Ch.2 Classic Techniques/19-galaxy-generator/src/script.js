@@ -15,16 +15,26 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 /**
+ * Textures
+ */
+const textureLoader = new THREE.TextureLoader();
+//Loading particle textures
+const particleTexture = textureLoader.load("/textures/particles/1.png");
+
+/**
  * Galaxy
  */
 const parameters = {};
 parameters.count = 100000;
-parameters.size = 0.01;
+parameters.size = 0.02;
 parameters.radius = 5;
 parameters.branches = 3;
 parameters.spin = 1;
 parameters.randomness = 0.2;
 parameters.randomnessPower = 3;
+parameters.insideColor = "#ff6030";
+parameters.outsideColor = "#1b3984";
+parameters.angle = 0;
 
 let geometry = null;
 let material = null;
@@ -46,10 +56,15 @@ const generateGalaxy = () => {
   geometry = new THREE.BufferGeometry();
 
   const positions = new Float32Array(parameters.count * 3);
+  const colors = new Float32Array(parameters.count * 3);
+
+  const colorInside = new THREE.Color(parameters.insideColor);
+  const colorOutside = new THREE.Color(parameters.outsideColor);
 
   for (let i = 0; i < parameters.count; i++) {
     const i3 = i * 3;
 
+    //Position
     const radius = Math.random() * parameters.radius;
     const spinAngle = radius * parameters.spin;
     const branchAngle =
@@ -74,9 +89,18 @@ const generateGalaxy = () => {
     positions[i3 + 0] = Math.cos(branchAngle + spinAngle) * radius + randomX;
     positions[i3 + 1] = randomY;
     positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+
+    //Color
+    const mixedColor = colorInside.clone();
+    mixedColor.lerp(colorOutside, radius / parameters.radius);
+
+    colors[i3 + 0] = mixedColor.r;
+    colors[i3 + 1] = mixedColor.g;
+    colors[i3 + 2] = mixedColor.b;
   }
 
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
   /**
    * Material
@@ -84,8 +108,10 @@ const generateGalaxy = () => {
   material = new THREE.PointsMaterial({
     size: parameters.size,
     sizeAttenuation: true,
+    alphaMap: particleTexture,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
+    vertexColors: true,
   });
 
   /**
@@ -96,6 +122,25 @@ const generateGalaxy = () => {
 };
 
 generateGalaxy();
+
+/**
+ * Animating galaxy
+ */
+
+// Define a function to update the rotation of the galaxy
+const update = () => {
+  // Increment the angle by a small value
+  parameters.angle += 0.001;
+
+  // Set the rotation of the points object to the new angle
+  points.rotation.y = parameters.angle;
+
+  // Call the update function again on the next frame
+  requestAnimationFrame(update);
+};
+
+// Call the update function to start the animation
+update();
 
 // Adding debug tweaks
 gui
@@ -140,6 +185,14 @@ gui
   .max(10)
   .step(0.001)
   .onFinishChange(generateGalaxy);
+gui
+  .add(parameters, "angle")
+  .min(1)
+  .max(10)
+  .step(0.001)
+  .onFinishChange(generateGalaxy);
+gui.addColor(parameters, "insideColor").onFinishChange(generateGalaxy);
+gui.addColor(parameters, "outsideColor").onFinishChange(generateGalaxy);
 
 /**
  * Sizes
@@ -173,8 +226,8 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.x = 3;
-camera.position.y = 3;
+camera.position.x = 2;
+camera.position.y = 0.5;
 camera.position.z = 3;
 scene.add(camera);
 
