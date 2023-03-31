@@ -94,6 +94,11 @@ window.addEventListener("resize", () => {
 /**
  * Camera
  */
+
+// Creating Camera Group
+const cameraGroup = new THREE.Group();
+scene.add(cameraGroup);
+
 // Base camera
 const camera = new THREE.PerspectiveCamera(
   35,
@@ -102,7 +107,7 @@ const camera = new THREE.PerspectiveCamera(
   100
 );
 camera.position.z = 6;
-scene.add(camera);
+cameraGroup.add(camera);
 
 /**
  * Renderer
@@ -141,23 +146,29 @@ window.addEventListener("mousemove", (event) => {
  * Animate
  */
 const clock = new THREE.Clock();
+let previousTime = 0;
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
+  // Calculating delta time to ensure same experience regardless of refresh rate screen
+  const deltaTime = elapsedTime - previousTime;
+  previousTime = elapsedTime;
+
+  //Update/animate Camera
+  camera.position.y = (-scrollY / sizes.height) * objectDistance;
+
+  const parallaxX = cursor.x * 0.5;
+  const parallaxY = -cursor.y * 0.5;
+  cameraGroup.position.x +=
+    (parallaxX - cameraGroup.position.x) * 5 * deltaTime;
+  cameraGroup.position.y +=
+    (parallaxY - cameraGroup.position.y) * 5 * deltaTime;
 
   // Animate Meshes
   for (const mesh of sectionMeshes) {
     mesh.rotation.x = elapsedTime * 0.15;
     mesh.rotation.y = elapsedTime * 0.1;
   }
-
-  //Update/animate Camera
-  camera.position.y = (-scrollY / sizes.height) * objectDistance;
-
-  const paralaxX = cursor.x;
-  const paralaxY = -cursor.y;
-  camera.position.x = paralaxX;
-  camera.position.y = paralaxY;
 
   // Render
   renderer.render(scene, camera);
