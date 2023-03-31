@@ -52,10 +52,15 @@ scene.add(mesh1, mesh2, mesh3);
 // Saving meshed into an Array
 const sectionMeshes = [mesh1, mesh2, mesh3];
 
-//Object Positions
+//Object Positions Y
 mesh1.position.y = -objectDistance * 0;
 mesh2.position.y = -objectDistance * 1;
 mesh3.position.y = -objectDistance * 2;
+
+//Object Positions X
+mesh1.position.x = 2;
+mesh2.position.x = -2;
+mesh3.position.x = 2;
 
 /**
  * Creating a light to see the toon mesh
@@ -120,6 +125,19 @@ window.addEventListener("scroll", () => {
 });
 
 /**
+ * Cursor
+ */
+const cursor = {};
+cursor.x = 0;
+cursor.y = 0;
+
+// Listening to mouse move
+window.addEventListener("mousemove", (event) => {
+  cursor.x = event.clientX / sizes.width - 0.5;
+  cursor.y = event.clientY / sizes.height - 0.5;
+});
+
+/**
  * Animate
  */
 const clock = new THREE.Clock();
@@ -134,7 +152,12 @@ const tick = () => {
   }
 
   //Update/animate Camera
-  camera.position.y = scrollY;
+  camera.position.y = (-scrollY / sizes.height) * objectDistance;
+
+  const paralaxX = cursor.x;
+  const paralaxY = -cursor.y;
+  camera.position.x = paralaxX;
+  camera.position.y = paralaxY;
 
   // Render
   renderer.render(scene, camera);
