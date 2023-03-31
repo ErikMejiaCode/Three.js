@@ -74,7 +74,7 @@ mesh3.position.x = 1.5;
  * Creating Particles
  */
 //Geometry
-const particleCount = 400;
+const particleCount = 450;
 const positions = new Float32Array(particleCount * 3);
 
 for (let i = 0; i < particleCount; i++) {
@@ -181,6 +181,7 @@ window.addEventListener("scroll", () => {
       ease: "power2.inOut",
       x: "+=6",
       y: "+=3",
+      z: "+=1.5",
     });
   }
 });
