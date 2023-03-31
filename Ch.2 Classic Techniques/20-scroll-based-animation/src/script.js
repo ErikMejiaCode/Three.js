@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import * as dat from "lil-gui";
 import { TextureLoader } from "three";
+import gsap from "gsap";
 
 /**
  * Debug
@@ -31,7 +32,7 @@ const scene = new THREE.Scene();
  */
 //Texture
 const textureLoader = new THREE.TextureLoader();
-const gradientTexture = textureLoader.load("/textures/gradients/3.jpg");
+const gradientTexture = textureLoader.load("/textures/gradients/5.jpg");
 gradientTexture.magFilter = THREE.NearestFilter;
 const particleTexture = textureLoader.load("/textures/particles/1.png");
 
@@ -45,10 +46,13 @@ const material = new THREE.MeshToonMaterial({
 const objectDistance = 4;
 
 // Objects
-const mesh1 = new THREE.Mesh(new THREE.TorusGeometry(1, 0.4, 16, 60), material);
-const mesh2 = new THREE.Mesh(new THREE.ConeGeometry(1, 2, 32), material);
+const mesh1 = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), material);
+const mesh2 = new THREE.Mesh(
+  new THREE.TorusGeometry(0.8, 0.5, 20, 32),
+  material
+);
 const mesh3 = new THREE.Mesh(
-  new THREE.TorusKnotGeometry(0.8, 0.35, 100, 16),
+  new THREE.TorusKnotGeometry(0.8, 0.25, 100, 16),
   material
 );
 scene.add(mesh1, mesh2, mesh3);
@@ -62,15 +66,15 @@ mesh2.position.y = -objectDistance * 1;
 mesh3.position.y = -objectDistance * 2;
 
 //Object Positions X
-mesh1.position.x = 2;
-mesh2.position.x = -2;
-mesh3.position.x = 2;
+mesh1.position.x = 1.5;
+mesh2.position.x = -1.5;
+mesh3.position.x = 1.5;
 
 /**
  * Creating Particles
  */
 //Geometry
-const particleCount = 350;
+const particleCount = 400;
 const positions = new Float32Array(particleCount * 3);
 
 for (let i = 0; i < particleCount; i++) {
@@ -91,7 +95,7 @@ particlesGeometry.setAttribute(
 const particleMaterial = new THREE.PointsMaterial({
   color: parameters.materialColor,
   sizeAttenuation: true,
-  size: 0.05,
+  size: 0.1,
   alphaMap: particleTexture,
   blending: THREE.AdditiveBlending,
 });
@@ -103,7 +107,7 @@ scene.add(particles);
 /**
  * Creating a light to see the toon mesh
  */
-const directionalLight = new THREE.DirectionalLight("#ffffff", 1);
+const directionalLight = new THREE.DirectionalLight("#ffffff", 0.5);
 directionalLight.position.set(1, 1, 0);
 scene.add(directionalLight);
 
@@ -162,9 +166,23 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  */
 //Getting scroll value
 let scrollY = window.scrollY;
+let currentSection = 0;
 
 window.addEventListener("scroll", () => {
   scrollY = window.scrollY;
+
+  const newSection = Math.round(scrollY / sizes.height);
+
+  if (newSection != currentSection) {
+    currentSection = newSection;
+
+    gsap.to(sectionMeshes[currentSection].rotation, {
+      duration: 2,
+      ease: "power2.inOut",
+      x: "+=6",
+      y: "+=3",
+    });
+  }
 });
 
 /**
@@ -204,13 +222,12 @@ const tick = () => {
 
   // Animate Meshes
   for (const mesh of sectionMeshes) {
-    mesh.rotation.x = elapsedTime * 0.08;
-    mesh.rotation.y = elapsedTime * 0.1;
+    mesh.rotation.x += deltaTime * 0.1;
+    mesh.rotation.y += deltaTime * 0.15;
   }
 
   //Animate particles
-
-  particles.rotation.y = parameters.angle += 0.0001;
+  particles.rotation.x = parameters.angle += 0.001;
 
   // Render
   renderer.render(scene, camera);
