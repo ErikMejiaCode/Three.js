@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import * as dat from "lil-gui";
+import { TextureLoader } from "three";
 
 /**
  * Debug
@@ -8,10 +9,12 @@ const gui = new dat.GUI();
 
 const parameters = {
   materialColor: "#ffeded",
+  angle: 0,
 };
 
 gui.addColor(parameters, "materialColor").onChange(() => {
   material.color.set(parameters.materialColor);
+  particleMaterial.color.set(parameters.materialColor);
 });
 
 /**
@@ -27,9 +30,10 @@ const scene = new THREE.Scene();
  * Add objects to the sections
  */
 //Texture
-const tectureLoader = new THREE.TextureLoader();
-const gradientTexture = tectureLoader.load("textures/gradients/3.jpg");
+const textureLoader = new THREE.TextureLoader();
+const gradientTexture = textureLoader.load("/textures/gradients/3.jpg");
 gradientTexture.magFilter = THREE.NearestFilter;
+const particleTexture = textureLoader.load("/textures/particles/1.png");
 
 //Material
 const material = new THREE.MeshToonMaterial({
@@ -61,6 +65,40 @@ mesh3.position.y = -objectDistance * 2;
 mesh1.position.x = 2;
 mesh2.position.x = -2;
 mesh3.position.x = 2;
+
+/**
+ * Creating Particles
+ */
+//Geometry
+const particleCount = 350;
+const positions = new Float32Array(particleCount * 3);
+
+for (let i = 0; i < particleCount; i++) {
+  positions[i * 3 + 0] = (Math.random() - 0.5) * 10;
+  positions[i * 3 + 1] =
+    objectDistance * 0.5 -
+    Math.random() * objectDistance * sectionMeshes.length;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+}
+
+const particlesGeometry = new THREE.BufferGeometry();
+particlesGeometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(positions, 3)
+);
+
+//Material
+const particleMaterial = new THREE.PointsMaterial({
+  color: parameters.materialColor,
+  sizeAttenuation: true,
+  size: 0.05,
+  alphaMap: particleTexture,
+  blending: THREE.AdditiveBlending,
+});
+
+//Create the points
+const particles = new THREE.Points(particlesGeometry, particleMaterial);
+scene.add(particles);
 
 /**
  * Creating a light to see the toon mesh
@@ -166,9 +204,13 @@ const tick = () => {
 
   // Animate Meshes
   for (const mesh of sectionMeshes) {
-    mesh.rotation.x = elapsedTime * 0.15;
+    mesh.rotation.x = elapsedTime * 0.08;
     mesh.rotation.y = elapsedTime * 0.1;
   }
+
+  //Animate particles
+
+  particles.rotation.y = parameters.angle += 0.0001;
 
   // Render
   renderer.render(scene, camera);

@@ -4,7 +4,12 @@
 }
 
 html {
-  background: #1e1a20;
+  background: rgb(2, 27, 156);
+  background: linear-gradient(
+    180deg,
+    rgba(2, 27, 156, 1) 0%,
+    rgba(217, 22, 61, 1) 100%
+  );
 }
 
 /* Removing in order to allow user to scroll */
