@@ -14,3 +14,7 @@ npm run dev
 # Build for production in the dist/ directory
 npm run build
 ```
+
+
+Live Demo - 
+https://scroll-demo-phi.vercel.app/
