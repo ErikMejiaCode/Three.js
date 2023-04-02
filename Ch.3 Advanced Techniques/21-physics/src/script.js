@@ -35,9 +35,25 @@ const environmentMapTexture = cubeTextureLoader.load([
 /**
  * Creating a Physics world
  */
-//world
+//World
 const world = new CANNON.World();
 world.gravity.set(0, -9.82, 0);
+
+// Physics Materials
+const defaultMaterial = new CANNON.Material("default");
+// const concreteMaterial = new CANNON.Material("concrete");
+// const plasticMaterial = new CANNON.Material("plastic");
+
+const defaultContactMaterial = new CANNON.ContactMaterial(
+  defaultMaterial,
+  defaultMaterial,
+  {
+    friction: 0.1,
+    restitution: 0.7,
+  }
+);
+world.addContactMaterial(defaultContactMaterial);
+world.defaultContactMaterial = defaultContactMaterial;
 
 /**
  * Creating Objects into the physics world
