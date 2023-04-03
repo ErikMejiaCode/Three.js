@@ -17,8 +17,6 @@ debugObject.createSphere = () => {
   });
 };
 
-gui.add(debugObject, "createSphere");
-
 //Box
 debugObject.createBox = () => {
   createBox(Math.random(), Math.random(), Math.random(), {
@@ -28,7 +26,22 @@ debugObject.createBox = () => {
   });
 };
 
+debugObject.reset = () => {
+  for (const object of objectsToUpdate) {
+    //Remove Body
+    object.body.removeEventListener("collide", playHitSound);
+    world.removeBody(object.body);
+
+    //Remove Mesh
+    scene.remove(object.mesh);
+  }
+  //Removing (Emptying) objectsToUpdate Array
+  objectsToUpdate.splice(0, objectsToUpdate.length);
+};
+
+gui.add(debugObject, "createSphere");
 gui.add(debugObject, "createBox");
+gui.add(debugObject, "reset");
 
 /**
  * Base
