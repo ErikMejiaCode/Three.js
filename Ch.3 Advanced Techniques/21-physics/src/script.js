@@ -40,18 +40,32 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 /**
+ * Creating the sound in JS
+ */
+const hitSound = new Audio("/sounds/hit.mp3");
+const playHitSound = (collision) => {
+  const impactStrength = collision.contact.getImpactVelocityAlongNormal();
+
+  if (impactStrength > 1.5) {
+    hitSound.volume = Math.random();
+    hitSound.currentTime = 0;
+    hitSound.play();
+  }
+};
+
+/**
  * Textures
  */
 const textureLoader = new THREE.TextureLoader();
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 
 const environmentMapTexture = cubeTextureLoader.load([
-  "/textures/environmentMaps/0/px.png",
-  "/textures/environmentMaps/0/nx.png",
-  "/textures/environmentMaps/0/py.png",
-  "/textures/environmentMaps/0/ny.png",
-  "/textures/environmentMaps/0/pz.png",
-  "/textures/environmentMaps/0/nz.png",
+  "/textures/environmentMaps/2/px.png",
+  "/textures/environmentMaps/2/nx.png",
+  "/textures/environmentMaps/2/py.png",
+  "/textures/environmentMaps/2/ny.png",
+  "/textures/environmentMaps/2/pz.png",
+  "/textures/environmentMaps/2/nz.png",
 ]);
 
 /**
@@ -234,6 +248,8 @@ const createSphere = (radius, position) => {
     material: defaultMaterial,
   });
   body.position.copy(position);
+  //Adding the hit sound function
+  body.addEventListener("collide", playHitSound);
   world.addBody(body);
 
   //Save in object to update
@@ -273,6 +289,8 @@ const createBox = (width, height, depth, position) => {
     material: defaultMaterial,
   });
   body.position.copy(position);
+  //Adding the hit sound function
+  body.addEventListener("collide", playHitSound);
   world.addBody(body);
 
   //Save in object to update
