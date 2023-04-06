@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as dat from "lil-gui";
 
 /**
@@ -13,6 +14,20 @@ const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 const scene = new THREE.Scene();
+
+/**
+ * Models - Loading
+ */
+const gltfLoader = new GLTFLoader();
+
+let model = null;
+
+gltfLoader.load("/models/Duck/glTF-Binary/Duck.glb", (gltf) => {
+  // gltf.scene.scale.set(1, 1, 1);
+  model = gltf.scene;
+  model.position.y = -1;
+  scene.add(model);
+});
 
 /**
  * Objects
@@ -119,8 +134,18 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.z = 3;
+camera.position.z = 4.5;
 scene.add(camera);
+
+/**
+ * Creating light to see Model
+ */
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+directionalLight.position.set(1, 2, 3);
+scene.add(directionalLight);
 
 // Controls
 const controls = new OrbitControls(camera, canvas);
@@ -174,6 +199,17 @@ const tick = () => {
       console.log("Mouse Exits");
     }
     currentIntersect = null;
+  }
+
+  //Test ntersect with model
+  if (model) {
+    const modelIntersects = raycaster.intersectObject(model);
+
+    if (modelIntersects.length) {
+      model.scale.set(1.5, 1.5, 1.5);
+    } else {
+      model.scale.set(1, 1, 1);
+    }
   }
 
   // const rayOrigin = new THREE.Vector3(-3, 0, 0);
