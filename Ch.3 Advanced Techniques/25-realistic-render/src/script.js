@@ -80,6 +80,9 @@ const environmentMap = cubeTextureLoader.load([
   "/textures/environmentMaps/0/nz.jpg",
 ]);
 
+// Changing environment encoding
+environmentMap.encoding = THREE.sRGBEncoding;
+
 scene.background = environmentMap;
 scene.environment = environmentMap;
 
@@ -167,11 +170,28 @@ controls.enableDamping = true;
  */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
+  //Adding antialiasing
+  antialias: true,
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 // Rednering lights physically right
 renderer.physicallyCorrectLights = true;
+// Renderer encoding
+renderer.outputEncoding = THREE.sRGBEncoding;
+// Tone Mapping
+renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMappingExposure = 1;
+
+gui.add(renderer, "toneMapping", {
+  No: THREE.NoToneMapping,
+  Linear: THREE.LinearToneMapping,
+  Reinhard: THREE.ReinhardToneMapping,
+  Cineon: THREE.CineonToneMapping,
+  ACESFilmic: THREE.ACESFilmicToneMapping,
+});
+
+gui.add(renderer, "toneMappingExposure").min(0).max(5).step(0.001);
 
 /**
  * Animate
