@@ -6,8 +6,10 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 /**
  * Loaders
  */
-
+// Used to load model
 const glftLoader = new GLTFLoader();
+// Used to load environement map
+const cubeTextureLoader = new THREE.CubeTextureLoader();
 
 /**
  * Models
@@ -26,6 +28,8 @@ glftLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
     .max(Math.PI)
     .step(0.001)
     .name("rotation");
+
+  updateAllMaterials();
 });
 
 /**
@@ -33,6 +37,7 @@ glftLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
  */
 // Debug
 const gui = new dat.GUI();
+const debugObject = {};
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -47,7 +52,44 @@ const testSphere = new THREE.Mesh(
   new THREE.SphereGeometry(1, 32, 32),
   new THREE.MeshStandardMaterial()
 );
-scene.add(testSphere);
+
+/**
+ * Update All Materials
+ */
+const updateAllMaterials = () => {
+  scene.traverse((child) => {
+    if (
+      child instanceof THREE.Mesh &&
+      child.material instanceof THREE.MeshStandardMaterial
+    ) {
+      // child.material.envMap = environmentMap;
+      child.material.envMapIntensity = debugObject.envMapIntensity;
+    }
+  });
+};
+
+/**
+ * Environment Map
+ */
+const environmentMap = cubeTextureLoader.load([
+  "/textures/environmentMaps/0/px.jpg",
+  "/textures/environmentMaps/0/nx.jpg",
+  "/textures/environmentMaps/0/py.jpg",
+  "/textures/environmentMaps/0/ny.jpg",
+  "/textures/environmentMaps/0/pz.jpg",
+  "/textures/environmentMaps/0/nz.jpg",
+]);
+
+scene.background = environmentMap;
+scene.environment = environmentMap;
+
+debugObject.envMapIntensity = 5 * 0.5;
+gui
+  .add(debugObject, "envMapIntensity")
+  .min(0)
+  .max(5)
+  .step(0.001)
+  .onChange(updateAllMaterials);
 
 /**
  * Sizes
