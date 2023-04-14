@@ -64,6 +64,8 @@ const updateAllMaterials = () => {
     ) {
       // child.material.envMap = environmentMap;
       child.material.envMapIntensity = debugObject.envMapIntensity;
+      child.castShadow = true;
+      child.receiveShadow = true;
     }
   });
 };
@@ -121,7 +123,15 @@ window.addEventListener("resize", () => {
  */
 const directionalLight = new THREE.DirectionalLight("#ffffff", 3);
 directionalLight.position.set(0.25, 3, -2.25);
+directionalLight.castShadow = true;
+directionalLight.shadow.camera.far = 15;
+directionalLight.shadow.mapSize.set(1024, 1024);
 scene.add(directionalLight);
+
+const directionalLightCameraHelper = new THREE.CameraHelper(
+  directionalLight.shadow.camera
+);
+scene.add(directionalLightCameraHelper);
 
 gui
   .add(directionalLight, "intensity")
@@ -182,6 +192,10 @@ renderer.outputEncoding = THREE.sRGBEncoding;
 // Tone Mapping
 renderer.toneMapping = THREE.ReinhardToneMapping;
 renderer.toneMappingExposure = 1;
+
+// Enabling shadowa
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 gui.add(renderer, "toneMapping", {
   No: THREE.NoToneMapping,
