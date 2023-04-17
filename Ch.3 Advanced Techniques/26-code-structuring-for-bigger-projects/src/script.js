@@ -1,8 +1,43 @@
-import { oneThing, anotherThing } from "./test.js";
+class Robot {
+  constructor(name, legs) {
+    this.robotName = name;
+    this.legs = legs;
 
-console.log(oneThing);
+    console.log(`I am ${name}. Thank you creator.`);
+  }
+  sayHi() {
+    console.log(`Hello creator, my name is ${this.robotName}`);
+  }
+}
 
-anotherThing();
+class FlyingRobot extends Robot {
+  constructor(name, legs) {
+    super(name, legs);
+
+    super.sayHi();
+  }
+
+  sayHi() {
+    console.log(`Hello my name is ${this.robotName} and I am a flying robot.`);
+  }
+
+  takeOff() {
+    console.log(`Have a good flight ${this.robotName}`);
+  }
+
+  land() {
+    console.log(`Welcome back ${this.robotName}`);
+  }
+}
+
+const wallE = new Robot("Wall-E", 0);
+const ultron = new FlyingRobot("Ultron", 2);
+const astroBoy = new FlyingRobot("Astro Boy", 2);
+
+// astroBoy.sayHi();
+// astroBoy.takeOff();
+// astroBoy.land();
+
 // import * as THREE from 'three'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 // import * as dat from 'lil-gui'
