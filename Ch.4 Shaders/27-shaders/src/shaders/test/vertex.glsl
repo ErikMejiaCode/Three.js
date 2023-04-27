@@ -5,9 +5,11 @@ uniform vec2 uFrequency;
 uniform float uTime;
 
 attribute vec3 position;
-attribute float aRandom;
+attribute vec2 uv;
+// attribute float aRandom;
 
 // varying float vRandom;
+varying vec2 vUv;
 
 void main()
 {   
@@ -17,6 +19,7 @@ void main()
     // modelPosition.z += aRandom * 0.1;
 
     // vRandom = aRandom;
+    vUv = uv;
     
 
     vec4 virePosition = viewMatrix * modelPosition;
