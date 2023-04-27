@@ -20,7 +20,7 @@ const scene = new THREE.Scene();
  * Textures
  */
 const textureLoader = new THREE.TextureLoader();
-const flagTexure = textureLoader.load("/textures/flag-french.jpg");
+const flagTexure = textureLoader.load("/textures/onepiece2.jpg");
 
 /**
  * Test mesh
